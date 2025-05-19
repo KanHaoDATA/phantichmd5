@@ -1,256 +1,81 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Phân Tích MD5 Tài Xỉu - Đăng Nhập Mã Kích Hoạt</title>
-<style>
-  html, body {
-    margin: 0; padding: 0; height: 100%;
-    background: #000; font-family: 'Courier New', monospace;
-    color: #00ff00; display: flex; flex-direction: column; align-items: center;
-    justify-content: center; overflow: hidden;
-  }
-  h1 { font-size: 2em; text-shadow: 0 0 10px #00ff00, 0 0 20px #00ff00; margin-bottom: 20px; }
-  textarea {
-    width: 90%; height: 150px;
-    background: #111; border: 2px solid #00ff00; border-radius: 10px;
-    color: #00ff00; font-size: 1em; padding: 10px; resize: none; outline: none;
-  }
-  button {
-    margin-top: 20px; background: #f00; color: #fff; border: none;
-    border-radius: 10px; padding: 10px 30px; font-size: 1.2em; cursor: pointer;
-    box-shadow: 0 0 15px #f00; transition: 0.3s;
-  }
-  button:hover { background: #ff4500; box-shadow: 0 0 25px #ff4500; }
-  .result { margin-top: 20px; font-size: 1.5em; text-align: center; }
-  .tai { color: #ff3333; text-shadow: 0 0 10px #ff3333; }
-  .xiu { color: #33ff33; text-shadow: 0 0 10px #33ff33; }
-  #loginForm {
-    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-    background: #000; display: flex; flex-direction: column; align-items: center;
-    justify-content: center; z-index: 10;
-  }
-  #userInfo {
-    position: absolute; top: 10px; left: 10px; right: 10px;
-    display: none; justify-content: space-between; align-items: center;
-    font-size: 0.9em; text-align: left;
-  }
-  #expireInfo { color: #00ff00; }
-  #logoutBtn {
-    background: #f00; border: none; border-radius: 10px;
-    padding: 5px 15px; font-size: 0.9em; cursor: pointer;
-    box-shadow: 0 0 10px #f00;
-  }
-  .login-container {
-    border: 2px solid #00ff00; padding: 30px 20px; border-radius: 15px;
-    box-shadow: 0 0 15px #00ff00, 0 0 30px #00ff00;
-    display: flex; flex-direction: column; align-items: center;
-  }
-  .contact-admin {
-    margin-top: 15px;
-  }
-  .contact-admin a {
-    color: #00ff00; text-decoration: none; font-size: 1em;
-    padding: 5px 15px; border: 1px solid #00ff00; border-radius: 10px;
-    box-shadow: 0 0 10px #00ff00; transition: 0.3s;
-  }
-  .contact-admin a:hover {
-    background: #00ff00; color: #000; box-shadow: 0 0 20px #00ff00;
-  }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dự Đoán MD5 - Tài Xỉu</title>
+  <style>
+    body {
+      background-color: #000;
+      color: #00ff00;
+      font-family: 'Courier New', monospace;
+      padding: 20px;
+      margin: 0;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 24px;
+    }
+
+    input, button {
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      background-color: #111;
+      border: 1px solid #0f0;
+      color: #0f0;
+      margin-top: 10px;
+      box-sizing: border-box;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    #result {
+      border: 1px solid #00ff00;
+      padding: 15px;
+      margin-top: 20px;
+      white-space: pre-line;
+      font-size: 15px;
+    }
+  </style>
 </head>
 <body>
 
-<!-- Đăng nhập -->
-<div id="loginForm">
-  <div class="login-container">
-    <h1>Đăng nhập</h1>
-    <input type="email" id="email" placeholder="Gmail..." style="margin: 5px; padding: 10px; width: 250px; border-radius: 8px; border: 1px solid #00ff00; background: #111; color: #00ff00; outline: none;">
-    <input type="password" id="key" placeholder="Mã kích hoạt..." style="margin: 5px; padding: 10px; width: 250px; border-radius: 8px; border: 1px solid #00ff00; background: #111; color: #00ff00; outline: none;">
-    <button onclick="login()">Đăng nhập</button>
-    <div id="loginStatus" style="margin-top:10px; color: #f00;"></div>
-    <div class="contact-admin">
-      <a href="https://t.me/KanHaoDATA" target="_blank">Liên hệ Admin</a>
-    </div>
-  </div>
-</div>
+  <h1>@KanHaoDATA</h1>
 
-<!-- Giao diện chính -->
-<div id="userInfo">
-  <div id="expireInfo"></div>
-  <button id="logoutBtn" onclick="logout()">Đăng xuất</button>
-</div>
+  <input type="text" id="md5input" placeholder="Nhập chuỗi MD5 (32 ký tự)">
+  <button onclick="predictMD5()">Dự đoán</button>
 
-<h1>Phân Tích Chuỗi MD5</h1>
+  <div id="result"></div>
 
-<textarea id="md5Input" placeholder="Nhập chuỗi MD5..."></textarea>
-<button onclick="guessResult()">Phân Tích</button>
+  <script>
+    function predictMD5() {
+      const md5 = document.getElementById("md5input").value.trim();
+      const resultDiv = document.getElementById("result");
 
-<div class="result" id="result"></div>
-
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
-
-<script>
-// Firebase config
-const firebaseConfig = {
-  apiKey: "AIzaSyAAFXxzi4w036bzN_pdS5rZ969BOMNpDpE",
-  authDomain: "kanhao010.firebaseapp.com",
-  databaseURL: "https://kanhao010-default-rtdb.firebaseio.com",
-  projectId: "kanhao010",
-  storageBucket: "kanhao010.appspot.com",
-  messagingSenderId: "363577281330",
-  appId: "1:363577281330:web:4b9df52d03d4ffc991252b",
-  measurementId: "G-MMTK233EBY"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
-
-function login() {
-  const email = document.getElementById('email').value.trim();
-  const key = document.getElementById('key').value.trim();
-  const status = document.getElementById('loginStatus');
-  if (!email || !key) {
-    status.innerText = "Nhập Gmail và Mã kích hoạt!";
-    return;
-  }
-  db.ref('keys').orderByChild('email').equalTo(email).once('value', snapshot => {
-    if (snapshot.exists()) {
-      let found = false;
-      snapshot.forEach(childSnapshot => {
-        const data = childSnapshot.val();
-        if (data.key === key) {
-          const today = new Date();
-          if (data.expired && data.expired !== 'null') {
-            const expireDate = new Date(data.expired);
-            if (expireDate < today) {
-              status.innerText = "Mã kích hoạt đã hết hạn!";
-              return;
-            } else {
-              document.getElementById('expireInfo').innerText = "Hết hạn: " + data.expired;
-            }
-          } else {
-            document.getElementById('expireInfo').innerText = "Mã kích hoạt vĩnh viễn";
-          }
-          found = true;
-          saveLoginInfo(email, key, data.expired);
-        }
-      });
-      if (found) {
-        document.getElementById('loginForm').style.display = 'none';
-        document.getElementById('userInfo').style.display = 'flex';
-      } else {
-        status.innerText = "Sai Mã kích hoạt!";
+      if (md5.length !== 32 || !/^[a-fA-F0-9]{32}$/.test(md5)) {
+        resultDiv.textContent = "[ERROR] Chuỗi MD5 không hợp lệ! Vui lòng nhập 32 ký tự hex.";
+        return;
       }
-    } else {
-      status.innerText = "Gmail chưa được cấp quyền!";
+
+      const last5 = md5.slice(-5);
+      const decimal = parseInt(last5, 16);
+      const percentTai = decimal % 100;
+      const percentXiu = 100 - percentTai;
+      const outcome = percentTai > 49 ? "TÀI" : "XỈU";
+
+      resultDiv.textContent = `NHẬP CHUỖI THÀNH CÔNG ✅
+ MD5 : ${md5}
+
+Tài : ${percentTai}%
+Xỉu : ${percentXiu}% 
+
+=> Kết Quả : ${outcome}`;
     }
-  });
-}
-
-function logout() {
-  document.getElementById('loginForm').style.display = 'flex';
-  document.getElementById('userInfo').style.display = 'none';
-  document.getElementById('email').value = '';
-  document.getElementById('key').value = '';
-  document.getElementById('loginStatus').innerText = '';
-  localStorage.removeItem('email');
-  localStorage.removeItem('key');
-  localStorage.removeItem('expired');
-}
-
-// ======= Thay mới phân tích MD5 ==========
-function guessResult() {
-  const md5Input = document.getElementById("md5Input").value.trim().toLowerCase();
-  const resultDiv = document.getElementById("result");
-
-  // Kiểm tra chuỗi MD5 hợp lệ
-  if (md5Input.length !== 32 || !/^[a-f0-9]+$/.test(md5Input)) {
-    resultDiv.innerHTML = "<span style='color: red;'>MD5 không hợp lệ!</span>";
-    return;
-  }
-
-  // Phân tích MD5 để quyết định Tài/Xỉu
-  const result = analyzeMD5(md5Input);
-  resultDiv.innerHTML = "Kết quả phân tích: <br><br><strong>" + result + "</strong>";
-}
-
-function analyzeMD5(md5Input) {
-  const lastTwoChars = md5Input.slice(-2);
-  const decimalValue = parseInt(lastTwoChars, 16);
-  if (decimalValue > 49) {
-    return '<span class="xiu">XỈU</span>';
-  } else {
-    return '<span class="tai">TÀI</span>';
-  }
-}
-// ==========================================
-
-function saveLoginInfo(email, key, expiredDate) {
-  localStorage.setItem('email', email);
-  localStorage.setItem('key', key);
-  localStorage.setItem('expired', expiredDate || 'null');
-}
-
-function autoLogin() {
-  const email = localStorage.getItem('email');
-  const key = localStorage.getItem('key');
-  const expired = localStorage.getItem('expired');
-
-  if (email && key) {
-    db.ref('keys').orderByChild('email').equalTo(email).once('value', snapshot => {
-      if (snapshot.exists()) {
-        let valid = false;
-        snapshot.forEach(childSnapshot => {
-          const data = childSnapshot.val();
-          if (data.key === key) {
-            const today = new Date();
-            if (data.expired && data.expired !== 'null') {
-              const expireDate = new Date(data.expired);
-              if (expireDate < today) {
-                logout();
-                alert('Mã kích hoạt đã hết hạn. Vui lòng đăng nhập lại.');
-                return;
-              } else {
-                document.getElementById('expireInfo').innerText = "Hết hạn: " + data.expired;
-              }
-            } else {
-              document.getElementById('expireInfo').innerText = "Mã kích hoạt vĩnh viễn";
-            }
-            valid = true;
-          }
-        });
-        if (valid) {
-          document.getElementById('loginForm').style.display = 'none';
-          document.getElementById('userInfo').style.display = 'flex';
-        } else {
-          logout();
-          alert('Mã kích hoạt không hợp lệ, vui lòng liên hệ Admin.');
-        }
-      } else {
-        logout();
-        alert('Mã kích hoạt không hợp lệ, vui lòng liên hệ Admin.');
-      }
-    });
-  }
-}
-
-setInterval(() => {
-  const expired = localStorage.getItem('expired');
-  if (expired && expired !== 'null') {
-    const expireDate = new Date(expired);
-    const now = new Date();
-    if (expireDate < now) {
-      logout();
-      alert('Mã kích hoạt đã hết hạn. Vui lòng đăng nhập lại.');
-    }
-  }
-}, 60000);
-
-autoLogin();
-</script>
+  </script>
 
 </body>
 </html>
